@@ -43,4 +43,3 @@ No credentials, environment files, build output, local runtime state or node_mod
 
 ## Optional owner console
 Set the server-only `OWNER_USER_ID` runtime variable to the exact account ID shown in your signed-in Account view. No default owner is assigned. `/api/admin` returns 404 until this exact stable Sites user ID is provisioned. Owner can list at most 500 customer aggregate rows, suspend/restore an account, and revoke a trial. Suspension blocks cloud mutations and session starts. It cannot prevent offline local simulation. No revenue, payments, billing entitlement changes, codes or team controls exist yet. Audit logging and provider-based billing administration remain launch requirements before commercial operations.
-
