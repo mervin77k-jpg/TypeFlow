@@ -49,3 +49,7 @@ yarn-error.log*
 
 /.vercel/
 
+
+__pycache__/
+*.pyc
+
