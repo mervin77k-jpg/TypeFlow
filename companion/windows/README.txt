@@ -1,7 +1,11 @@
 TYPEFLOW WINDOWS COMPANION
 
-Requires Windows 10/11 and Python 3.10 or newer with Tkinter.
-Install Python from https://www.python.org/downloads/windows/ if needed.
+Requires Windows 10/11. First setup needs an internet connection.
+The launcher reuses working Python or automatically downloads Python 3.14.9
+from python.org, verifies its hash and publisher, and installs Python with
+Tkinter for your account. No terminal commands or administrator access needed.
+Keep all four ZIP files together. Windows may show normal security prompts.
+Setup logs: %LocalAppData%\TypeFlow\Setup. Later launches reuse Python.
 
 1. Unzip this folder. Double-click Start-TypeFlow.cmd.
 2. Keep the companion window open. Tick Allow TypeFlow to type.
