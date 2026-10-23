@@ -1,45 +1,43 @@
 # TypeFlow
 
-Premium dark typing simulation studio for legitimate demos, accessibility and testing. Source text remains on the device. Built with React/Vinext, Sites-managed ChatGPT authentication, and Cloudflare D1.
+A private-first typing simulation studio. This branch runs on **Next.js and Vercel**.
 
-## Working features
-- Live in-app typing; WPM and variation; sentence, paragraph and periodic long pauses; automatic resume; typo correction; countdown; boost; pause/resume; stop/Escape; progress and stats.
-- Local source text/settings persistence; .txt import (500 KB limit); responsive keyboard-accessible interface.
-- Sites ChatGPT sign-in/sign-out. Password recovery and 2FA are managed by the ChatGPT account.
-- Per-user cloud profiles: create, restore, update, rename, duplicate, delete. Cloud records contain settings, never source text.
-- Atomic server limits: Free two profiles and ten lifetime cloud session starts. Seven-day trial once per account, fifty profiles and unlimited starts. Expiry derives from server time and retains all profiles. Existing profiles remain editable.
-- Personal aggregate session starts, words and completions. These are browser-reported activity counts, not audited assessment data.
+## Run
 
-## Launch preview status
-All local studio controls/imports are available for preview. Paid gating of browser-local behavior is not a security boundary. Server-owned cloud records enforce their limits. No paid subscription is enabled or represented as active.
-
-## Setup
-Node >=22.13, npm, Git and tar required.
+Node.js 22.13+ and npm:
 
 ```
 npm ci
-npm run db:generate
-npm run build
 npm run dev
+npm run build
+npm start
+node --test tests/*.test.mjs
 ```
 
-Use the Sites plugin lifecycle for deployment; preserve `.openai/hosting.json` project identity and Sites Vite integration. D1 binding is `DB`. Sites applies committed schema migrations during publication. See starter README content in the Sites plugin for local D1 commands; after building run Wrangler `d1 execute DB --local --config dist/server/wrangler.json --persist-to .wrangler/state --file <migration>` for each pending migration. Run `node --test tests/*.test.mjs` for pure typing logic checks when present.
+## Deploy on Vercel
 
-## Provider setup still required
-There is no payment provider, email provider or team membership/invitation service configured. Pro $9/month and Team $39/month (five accounts) are planned pricing only. Checkout, subscriptions, payment codes, codes by email, team seats/invitations, subscription cancellation and revenue reporting are unavailable. No fake payment success, admin authentication, customer/revenue data or activation code is generated. Custom email/password authentication is not supported by Sites; use hosted ChatGPT sign-in.
+Import this repository with Root Directory `./`. The committed `vercel.json` selects **Next.js**, uses `npm ci`, builds with `npm run build` and serves `.next`. A push to the connected `main` branch should create a new deployment. If your existing project has old settings, use Next.js as the framework and remove conflicting custom settings; do not use the old `dist` Worker output as a static site.
 
-Before enabling billing implement a provider-specific adapter with server-secret API credentials. Checkout must use server-side plan/price IDs and bind to authenticated user IDs. Webhooks must verify the provider signature over raw request bytes, reject stale/replayed signatures, persist unique event IDs and unique payment IDs transactionally, and validate price/currency/status/account before issuing one cryptographically random activation code. Store only code hashes, mark redemption atomically once, and never trust a browser payment-success flag. Success/account pages should poll the authenticated server record and reveal a code only after verified confirmation, together with automatic entitlement activation. Queue an idempotent email notification using a transactional outbox. Reconcile subscription changes, failed payments, refunds, cancellation and expiry server-side; derive downgrade while retaining profiles.
+## Available now
 
-Team requires server membership records and a unique owner billing account. Count active members AND pending invitations in the same transaction before reserving any of five seats. Invitation tokens must be hashed, expiring, one-use and email-bound. Build protected admin reports and audited plan/revoke/suspend operations only after explicit owner provisioning. Never infer ownership from a browser email field or grant admin to the first visitor. Owner 2FA is managed through ChatGPT where supported.
+- Responsive navy/teal studio with local text input/import and live typing preview.
+- WPM/variation, sentence/paragraph pauses, periodic long pauses with automatic resume, typo correction, countdown, boost, pause/resume, stop/Escape, progress and stats.
+- Source/settings persist in this browser. Clear local text from Account.
+- Two **device-local** named profiles: create, restore, update, rename, duplicate and delete. These are not cloud accounts and do not sync across browsers.
+- All local studio controls are available as a launch preview; no paid subscription is claimed.
 
-## Privacy
-The browser persists source text locally under `typeflow`. Account includes a Clear local text action. Cloud telemetry contains aggregate counts only; it never submits source text. Avoid shared-device storage for sensitive text. Activity counters are not trusted billing evidence. Guest use is local and does not create cloud records.
+## Setup still required
 
-## Security boundaries
-Sites injects authenticated identity headers. Every data API derives owner identity server-side. Mutations validate Origin and scope all queries by the authenticated user. D1 conditional statements avoid profile/session/trial races. Public deployment requires explicit Sites audience configuration; creating a Site alone leaves it owner-private.
+Cloud accounts, cloud profile sync, password recovery, cloud trials, owner administration and aggregate analytics require a Vercel-compatible authenticated backend. The account API returns `503 BACKEND_NOT_CONFIGURED`; admin returns `404`. No client identity header is treated as proof of authentication on Vercel. Account setup explains the current status rather than offering a non-working login.
 
-## Source publication
-No credentials, environment files, build output, local runtime state or node_modules should be committed. `.env.example` documents names only. Never commit Sites source-repository access tokens.
+No payment or email provider is configured. Pro $9/month and Team $39/month (five accounts) are planned pricing only. Checkout, verified payment webhooks, activation codes, activation emails, subscription lifecycle and Team memberships/invitations/seat limits are unavailable. No fake payment, activation, customer or revenue data is produced, and no payment is collected.
 
-## Optional owner console
-Set the server-only `OWNER_USER_ID` runtime variable to the exact account ID shown in your signed-in Account view. No default owner is assigned. `/api/admin` returns 404 until this exact stable Sites user ID is provisioned. Owner can list at most 500 customer aggregate rows, suspend/restore an account, and revoke a trial. Suspension blocks cloud mutations and session starts. It cannot prevent offline local simulation. No revenue, payments, billing entitlement changes, codes or team controls exist yet. Audit logging and provider-based billing administration remain launch requirements before commercial operations.
+The previous Sites-only backend is preserved in `platforms/sites/`, alongside its original instructions. It relies on the Sites dispatch authentication boundary and Cloudflare D1, and is **not connected to the Vercel app**. Original source is also retained in Git history. D1 schema/migrations and cloud SQL tests remain available for a future backend migration.
+
+## Payment integration requirements
+
+Before enabling billing, implement provider-secret checkout with server price IDs, signature-verified raw webhook requests, unique event/payment IDs and idempotent transactions. Never trust a browser success flag. Bind payment records to authenticated user IDs. Issue cryptographically random one-use activation codes only after verified payment, store hashes, show them only to the owning account and queue email via an idempotent outbox. Enforce expiry/downgrade on the server while retaining profiles. Count active members plus pending invitations when reserving the five Team seats. Provision the owner explicitly and use provider-supported 2FA.
+
+## Privacy and source
+
+Source text stays in this browser. Device profiles store control settings only. Files containing secrets, node_modules, build output and local runtime data are excluded from source control. `.env.example` contains names only; no credentials are required for the local studio.

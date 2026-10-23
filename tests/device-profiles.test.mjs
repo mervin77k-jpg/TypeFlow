@@ -1,0 +1,6 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {readDeviceProfiles,changeDeviceProfiles,DEVICE_PROFILES_KEY} from '../lib/device-profiles.mjs';
+const storage=()=>{const m=new Map();return {getItem:k=>m.get(k)||null,setItem:(k,v)=>m.set(k,v)}};
+test('device profiles persist, restore, edit, duplicate, delete and enforce two slots',()=>{const s=storage();changeDeviceProfiles(s,{action:'profile',name:'Ori',settings:{wpm:60}},()=> 'one');assert.equal(readDeviceProfiles(s)[0].settings.wpm,60);changeDeviceProfiles(s,{action:'profile',id:'one',name:'Ori renamed',settings:{wpm:80}});assert.equal(readDeviceProfiles(s)[0].name,'Ori renamed');changeDeviceProfiles(s,{action:'profile',name:'Copy',settings:{wpm:80}},()=> 'two');assert.throws(()=>changeDeviceProfiles(s,{action:'profile',name:'Third',settings:{}}),/two profiles/);changeDeviceProfiles(s,{action:'delete',id:'one'});assert.deepEqual(readDeviceProfiles(s).map(p=>p.id),['two']);});
+test('corrupt local storage and blank names fail safely',()=>{const s=storage();s.setItem(DEVICE_PROFILES_KEY,'broken');assert.deepEqual(readDeviceProfiles(s),[]);assert.throws(()=>changeDeviceProfiles(s,{action:'profile',name:'  ',settings:{}}),/profile name/)});
